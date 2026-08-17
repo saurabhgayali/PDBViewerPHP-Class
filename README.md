@@ -1,493 +1,515 @@
 # PDBViewerPHP
 
-**A PHP class for server-configured molecular structure visualization**
+A PHP library for embedding interactive molecular structure viewers into PHP applications, using **3Dmol.js** as the client-side rendering engine.
 
-> **Project status:** Concept / development brief. This is not the final project documentation.
+> **3Dmol.js is the molecular rendering engine. PDBViewerPHP is the PHP configuration, embedding, and UI-control layer.**
 
-## Project Concept
+## What is PDBViewerPHP?
 
-PDBViewerPHP is a reusable PHP library for embedding interactive molecular structure viewers into PHP websites and applications.
+PDBViewerPHP allows PHP developers to create configurable, interactive molecular viewers without writing JavaScript. The library provides a clean PHP API for server-side configuration of viewer appearance, molecular representations, and user controls—all without requiring direct knowledge of 3Dmol.js.
 
-It uses **3Dmol.js as the client-side molecular rendering engine**, loaded from a CDN.
+### Key Features
 
-The purpose of PDBViewerPHP is **not to replace 3Dmol.js**. Instead, it provides a PHP-oriented abstraction over it.
+- **PHP-First API**: Configure everything in PHP with a fluent interface
+- **No JavaScript Required**: PHP developers don't need to write JavaScript
+- **Server-Controlled UI**: Decide which controls are available to users
+- **Multiple Representation Types**: Cartoon, stick, sphere, ribbon, surface, and more
+- **Configurable Appearance**: Colors, themes, backgrounds, dimensions, lighting
+- **Flexible Structure Sources**: PDB IDs, URLs, local files, or raw data
+- **Minimal Dependencies**: No framework dependencies, just PHP 8.1+
+- **Security-Conscious**: Safe HTML escaping and configuration serialization
+- **Multiple Themes**: Light, dark, and minimal built-in themes
 
-The central idea is:
+## Installation
 
-> **The PHP developer defines the viewer configuration and user permissions on the server; 3Dmol.js renders and interacts with the structure in the browser.**
+### Requirements
 
-This makes it possible for a PHP developer to add a controlled molecular viewer without having to build the JavaScript integration manually.
+- PHP 8.1 or higher
+- Composer
+- Modern web browser with WebGL support
 
----
+### Setup
 
-## The Problem
+```bash
+composer require saurabhgayali/pdbviewerphp
+```
 
-Libraries such as 3Dmol.js already provide excellent molecular rendering capabilities, but directly integrating a JavaScript molecular viewer into a PHP application still requires developers to manage:
+Or clone the repository:
 
-* JavaScript initialization
-* Viewer configuration
-* Structure loading
-* Representation configuration
-* UI creation
-* Viewer controls
-* HTML/JavaScript integration
-* Browser-side functionality
-* Configuration serialization
+```bash
+git clone https://github.com/saurabhgayali/PDBViewerPHP-Class.git
+cd PDBViewerPHP-Class
+composer install
+```
 
-PDBViewerPHP aims to make this simpler by providing a **PHP-first interface**.
+## Quick Start
 
-The developer should be able to think in terms of:
+### Minimal Example
 
-> "Create a protein viewer with this structure, this representation, this theme, and these controls."
+```php
+<?php
+require_once 'vendor/autoload.php';
 
-rather than:
+use PDBViewerPHP\PDBViewer;
 
-> "Write JavaScript to initialize 3Dmol.js, create the toolbar, connect every button, and serialize the configuration."
+$viewer = new PDBViewer();
+$viewer->loadPDB('1ABC')
+    ->setDimensions(600, 600);
 
----
+echo $viewer->render();
+?>
+```
 
-# Core Concept
+### With Customization
 
-PDBViewerPHP sits between the PHP application and 3Dmol.js.
+```php
+<?php
+require_once 'vendor/autoload.php';
 
-```text
+use PDBViewerPHP\PDBViewer;
+use PDBViewerPHP\Configuration\{RepresentationType, ColorScheme, Theme};
+
+$viewer = new PDBViewer();
+$viewer->loadPDB('1ABC')
+    ->setDimensions(800, 600)
+    ->setTheme(Theme::DARK)
+    ->setRepresentation(RepresentationType::CARTOON)
+    ->setColorScheme(ColorScheme::CHAIN)
+    ->setBackgroundColor('#1e1e1e')
+    ->hideDownloadControl();
+
+echo $viewer->render();
+?>
+```
+
+## API Reference
+
+### PDBViewer Class
+
+The main class for creating and configuring viewers. Uses a fluent interface for chainable method calls.
+
+#### Structure Loading
+
+```php
+// Load from PDB ID
+$viewer->loadPDB('1ABC');
+
+// Load from PDB URL
+$viewer->loadFromPdbUrl('https://files.rcsb.org/download/1ABC.pdb');
+
+// Load from mmCIF URL
+$viewer->loadFromMmCifUrl('https://mmcif.example.com/structure.cif');
+
+// Load from local file
+$viewer->loadFromFile('/path/to/structure.pdb');
+
+// Load from raw data
+$viewer->loadFromRawData($pdbData, 'pdb');
+```
+
+#### Molecular Representations
+
+```php
+use PDBViewerPHP\Configuration\RepresentationType;
+
+// Set primary representation
+$viewer->setRepresentation(RepresentationType::CARTOON);
+$viewer->setRepresentation(RepresentationType::STICK);
+$viewer->setRepresentation(RepresentationType::SPHERE);
+$viewer->setRepresentation(RepresentationType::RIBBON);
+$viewer->setRepresentation(RepresentationType::LINE);
+$viewer->setRepresentation(RepresentationType::CROSS);
+$viewer->setRepresentation(RepresentationType::SURFACE);
+
+// Add multiple representations
+$viewer->addRepresentation(RepresentationType::CARTOON);
+$viewer->addRepresentation(RepresentationType::STICK);
+```
+
+#### Color Schemes
+
+```php
+use PDBViewerPHP\Configuration\ColorScheme;
+
+$viewer->setColorScheme(ColorScheme::CHAIN);      // Color by chain
+$viewer->setColorScheme(ColorScheme::SPECTRUM);   // Spectrum gradient
+$viewer->setColorScheme(ColorScheme::ATOM);       // Atom type colors
+$viewer->setColorScheme(ColorScheme::RESIDUE);    // Residue type colors
+$viewer->setColorScheme(ColorScheme::CARTOON);    // Cartoon colors
+$viewer->setColorScheme(ColorScheme::SSTYPE);     // Secondary structure
+$viewer->setColorScheme(ColorScheme::HYDRO);      // Hydrophobicity
+```
+
+#### Appearance Configuration
+
+```php
+// Dimensions
+$viewer->setWidth(800);
+$viewer->setHeight(600);
+$viewer->setDimensions(800, 600);
+
+// Background
+$viewer->setBackgroundColor('#FFFFFF');
+$viewer->setBackgroundTransparent(true);
+
+// Themes
+use PDBViewerPHP\Configuration\Theme;
+$viewer->setTheme(Theme::LIGHT);
+$viewer->setTheme(Theme::DARK);
+$viewer->setTheme(Theme::MINIMAL);
+
+// Animation
+$viewer->setSpin(true);
+$viewer->setSpin(false);
+
+// Initial zoom
+$viewer->setZoom(1.5);
+```
+
+#### UI Controls
+
+Enable or disable user controls:
+
+```php
+// Standard method
+$viewer->setZoomControlEnabled(true);
+$viewer->setRotateControlEnabled(false);
+$viewer->setPanControlEnabled(true);
+$viewer->setResetControlEnabled(true);
+$viewer->setFullscreenControlEnabled(true);
+$viewer->setSpinControlEnabled(false);
+$viewer->setScreenshotControlEnabled(true);
+$viewer->setDownloadControlEnabled(false);
+
+// Convenience methods
+$viewer->showZoomControl();
+$viewer->hideDownloadControl();
+$viewer->showFullscreenControl();
+$viewer->hideScreenshotControl();
+$viewer->showRotateControl();
+```
+
+#### Rendering
+
+```php
+// Render complete HTML with external resources
+echo $viewer->render();
+
+// Render just the container
+$html = $viewer->renderHtml();
+
+// Render just the JavaScript
+$js = $viewer->renderJavaScript();
+
+// Get configuration as JSON
+$config = $viewer->getConfigurationJson();
+```
+
+## Configuration Classes
+
+### StructureConfiguration
+
+Manages structure source configuration.
+
+```php
+use PDBViewerPHP\Configuration\StructureConfiguration;
+
+$config = new StructureConfiguration();
+$config->setPdbId('1ABC');
+$config->getSourceType();        // Returns 'pdb_id'
+$config->isConfigured();         // Returns true/false
+$config->toArray();              // For serialization
+```
+
+### RepresentationConfiguration
+
+Manages molecular representation settings.
+
+```php
+use PDBViewerPHP\Configuration\RepresentationConfiguration;
+
+$config = new RepresentationConfiguration();
+$config->setRepresentation(RepresentationType::CARTOON);
+$config->setColorScheme(ColorScheme::CHAIN);
+$config->getRepresentations();
+```
+
+### AppearanceConfiguration
+
+Manages viewer appearance settings.
+
+```php
+use PDBViewerPHP\Configuration\AppearanceConfiguration;
+
+$config = new AppearanceConfiguration();
+$config->setDimensions(800, 600);
+$config->setBackgroundColor('#FFFFFF');
+$config->setTheme(Theme::DARK);
+$config->getWidth();
+$config->getHeight();
+$config->getTheme();
+```
+
+### ControlConfiguration
+
+Manages UI control availability.
+
+```php
+use PDBViewerPHP\Configuration\ControlConfiguration;
+
+$config = new ControlConfiguration();
+$config->setZoomEnabled(true);
+$config->setDownloadEnabled(false);
+$config->isZoomEnabled();
+```
+
+## Themes
+
+PDBViewerPHP includes three built-in themes:
+
+### Light Theme (Default)
+Clean, bright interface suitable for most applications.
+
+```php
+$viewer->setTheme(Theme::LIGHT);
+```
+
+### Dark Theme
+Dark interface with high contrast, suitable for dark-mode websites.
+
+```php
+$viewer->setTheme(Theme::DARK);
+```
+
+### Minimal Theme
+Minimalist interface with hidden controls by default.
+
+```php
+$viewer->setTheme(Theme::MINIMAL);
+```
+
+## Examples
+
+The `examples/` directory includes working examples:
+
+- `01_minimal.php` - Simplest possible viewer
+- `02_dark_theme.php` - Dark theme configuration
+- `03_representation.php` - Different representations
+- `04_custom_controls.php` - Control customization
+
+Run an example:
+
+```bash
+php -S localhost:8000 examples/01_minimal.php
+```
+
+## Demo Application
+
+A complete interactive demo is included:
+
+```bash
+php -S localhost:8000 demo/index.php
+```
+
+Then open `http://localhost:8000` in your browser. The demo allows you to:
+
+- Enter a PDB ID
+- Select representation type
+- Choose color scheme
+- Switch themes
+- Toggle controls
+- Enable/disable features
+
+## Architecture
+
+PDBViewerPHP is built around a clean separation of concerns:
+
+```
 PHP Application
-       │
-       ▼
-  PDBViewerPHP
-       │
-       ├── Structure configuration
-       ├── Appearance configuration
-       ├── Representation configuration
-       ├── UI configuration
-       └── User-control configuration
-       │
-       ▼
- Generated HTML / JSON / JavaScript
-       │
-       ▼
-   3Dmol.js CDN
-       │
-       ▼
- Browser / WebGL
+    ↓
+PDBViewerPHP (Server-side configuration)
+    ├── Structure Configuration
+    ├── Representation Configuration
+    ├── Appearance Configuration
+    ├── Control Configuration
+    └── Renderer (RendererInterface)
+    ↓
+Generated HTML + JSON Configuration + JavaScript Adapter
+    ↓
+3Dmol.js (Client-side molecular rendering)
+    ↓
+WebGL (Browser rendering)
 ```
 
-The division of responsibility is intentional.
+### PDBViewerPHP Responsibilities
 
-### PDBViewerPHP
+- Server-side viewer configuration
+- UI control availability management
+- HTML generation
+- Safe configuration serialization
+- Theme application
 
-Responsible for:
+### 3Dmol.js Responsibilities
 
-* Server-side configuration
-* Viewer setup
-* UI configuration
-* Control availability
-* HTML generation
-* Safe configuration serialization
-* PHP developer experience
+- WebGL rendering
+- Molecular visualization
+- Structure parsing and loading
+- Atom/residue selection
+- Interactive controls (zoom, rotate, pan)
 
-### 3Dmol.js
+### Browser Responsibilities
 
-Responsible for:
+- User interaction
+- Canvas rendering
+- Fullscreen API
+- Screenshot/download functionality
 
-* Molecular rendering
-* WebGL
-* Molecular representations
-* Structure parsing/loading
-* Atom selections
-* Molecular visualization
-* Browser-side molecular interaction
+## Security Considerations
 
-### Browser
+### Security Features
 
-Responsible for:
+1. **HTML Escaping**: All user-controlled output is properly escaped for HTML context
+2. **JSON Serialization**: Configuration is safely serialized to JSON without creating arbitrary JavaScript
+3. **Configuration Validation**: All configuration values are validated before rendering
+4. **Attribute Escaping**: HTML attributes are properly quoted and escaped
 
-* User interaction
-* Fullscreen
-* Canvas operations
-* Download/screenshot mechanisms where applicable
-* Rendering the generated interface
+### Important Notes
 
----
+**PDBViewerPHP is NOT a security boundary.**
 
-# Server-Controlled Viewer
+Once molecular data is sent to the browser, a sufficiently technical user can potentially access that data regardless of PDBViewerPHP's UI controls. The "disable download" feature is a **UI restriction**, not a security mechanism.
 
-One of the main concepts of PDBViewerPHP is **server-defined viewer behavior**.
+If you have sensitive data:
+- Use HTTPS to encrypt transmission
+- Implement server-side access controls
+- Don't rely on browser-side restrictions
+- Consider data classification and need-to-know
 
-A website administrator should be able to decide what the visitor is allowed to do.
+## 3Dmol.js Dependency
 
-For example, a website may provide:
+PDBViewerPHP uses **3Dmol.js 2.0.1** from the official CDN by default:
 
-### Research Viewer
-
-* Rotation enabled
-* Zoom enabled
-* Representation switching enabled
-* Surface visualization enabled
-* Labels enabled
-* Screenshot enabled
-* Download disabled
-
-### Public Education Viewer
-
-* Rotation enabled
-* Zoom enabled
-* Representation switching disabled
-* Advanced controls hidden
-* Download disabled
-* Simplified interface
-
-### Publication Viewer
-
-* Fixed representation
-* Fixed background
-* Fixed camera
-* Minimal controls
-* No unnecessary UI
-
-### Internal Research Tool
-
-* Full controls
-* Multiple representations
-* Selection tools
-* Labels
-* Surfaces
-* Download
-* Advanced interaction
-
-The same molecular rendering engine can therefore be used for very different applications simply by changing the PHP-side configuration.
-
----
-
-# What PDBViewerPHP Is Not
-
-PDBViewerPHP is **not intended to be**:
-
-* A replacement for 3Dmol.js
-* A new WebGL molecular rendering engine
-* A complete molecular modelling application
-* A molecular dynamics viewer
-* A protein structure analysis package
-* A replacement for PyMOL, ChimeraX, or similar desktop applications
-* A JavaScript framework
-
-The project should remain focused on **embedding and controlling molecular visualization in PHP applications**.
-
----
-
-# Supported Structure Concepts
-
-The library should be designed around common molecular structure sources supported by 3Dmol.js.
-
-Potential sources include:
-
-* PDB identifiers
-* PDB files
-* PDB URLs
-* mmCIF structures
-* Raw structure data
-* Server-hosted structure files
-
-The PHP API should abstract the source sufficiently that the developer does not need to manually construct the corresponding JavaScript loading code.
-
----
-
-# Visualization Concepts
-
-PDBViewerPHP should expose the major visualization capabilities of 3Dmol.js through PHP configuration.
-
-These include concepts such as:
-
-* Cartoon representation
-* Stick representation
-* Sphere representation
-* Line representation
-* Surface representation
-* Ribbon/backbone visualization
-* Atom selection
-* Residue selection
-* Chain selection
-* Molecular coloring
-* Labels
-* Multiple structures
-* Highlighting
-* Initial camera/view
-* Zoom
-* Rotation
-* Spin
-* Lighting
-* Background
-
-The library should not expose every low-level 3Dmol.js function unnecessarily.
-
-Instead, it should provide a useful **PHP-level vocabulary for common molecular visualization tasks**.
-
----
-
-# UI and Controls
-
-3Dmol.js is primarily a molecular visualization library rather than a complete application UI.
-
-PDBViewerPHP can therefore provide a lightweight UI layer around it.
-
-Possible controls include:
-
-* Zoom
-* Rotate
-* Pan
-* Reset view
-* Fullscreen
-* Spin
-* Screenshot
-* Download
-* Representation selection
-* Color selection
-* Surface visibility
-* Label visibility
-* Structure selection
-
-Controls should be individually configurable.
-
-A developer should be able to create both a completely minimal viewer and a feature-rich viewer using the same class.
-
----
-
-# Themes
-
-PDBViewerPHP should have a concept of viewer themes.
-
-Themes primarily control the **PDBViewerPHP interface**, including things such as:
-
-* Toolbar appearance
-* Control arrangement
-* Typography
-* Light/dark presentation
-* UI spacing
-* Button appearance
-
-Molecular rendering properties such as molecular colors and backgrounds remain separate configuration concepts.
-
-This separation allows a website to have its own interface style while independently controlling how the structure itself is rendered.
-
----
-
-# Use Cases
-
-## 1. Scientific Websites
-
-A research group can publish interactive structures alongside publications or project descriptions.
-
-The viewer can be configured specifically for the structure being discussed.
-
-For example:
-
-* Protein displayed as cartoon
-* Ligand displayed as sticks
-* Important residues labelled
-* Fixed initial orientation
-* Minimal controls
-
----
-
-## 2. Bioinformatics Portals
-
-A PHP-based bioinformatics portal can embed structures directly into search or result pages.
-
-A structure page could combine:
-
-* Protein information
-* Sequence information
-* PDB structure
-* Interactive visualization
-* Annotation
-
-The viewer can inherit the portal's configuration without requiring each page to implement its own JavaScript integration.
-
----
-
-## 3. Educational Websites
-
-Teachers and educational websites can provide simplified molecular viewers.
-
-Students may only need:
-
-* Rotate
-* Zoom
-* Reset
-
-Advanced controls can remain hidden.
-
-This prevents a relatively complex molecular visualization interface from overwhelming beginners.
-
----
-
-## 4. Pharmaceutical / Drug Discovery Applications
-
-A PHP application could use the viewer to display:
-
-* Protein structures
-* Protein-ligand complexes
-* Binding sites
-* Ligands
-* Important residues
-* Surface representations
-
-The administrator could control exactly which visualization options are exposed.
-
----
-
-## 5. Scientific Reports and Project Portals
-
-A research project website could provide an interactive structure viewer alongside experimental results.
-
-The viewer could be configured as part of the report template rather than manually integrated into every page.
-
----
-
-## 6. CMS-Based Scientific Websites
-
-A CMS or PHP-based content management system could use PDBViewerPHP as a reusable component.
-
-An administrator could define a structure and viewer configuration while the underlying page remains unaware of the JavaScript implementation.
-
----
-
-## 7. Internal Research Tools
-
-A laboratory or research organization could use PDBViewerPHP as a lightweight structure visualization component inside an existing PHP application.
-
-The viewer does not need to become the entire application.
-
-It can remain a focused component alongside:
-
-* Tables
-* Search
-* Metadata
-* Annotations
-* Reports
-* Sequence information
-* Experimental data
-
----
-
-## 8. Structure Databases
-
-A custom protein or structural database could use PDBViewerPHP to provide an interactive viewer for every structure record.
-
-The database backend can determine:
-
-* Which structure is displayed
-* Which representation is initially used
-* Which controls are exposed
-* Which annotations are visible
-* Which download options are available
-
----
-
-# Server Control vs Client Rendering
-
-A fundamental concept of this project is the distinction between **configuration** and **rendering**.
-
-The PHP application decides:
-
-> What should the viewer look like and what should the user be allowed to do?
-
-The browser decides:
-
-> How should that configuration be rendered interactively?
-
-This does **not** imply that PHP can enforce browser-side security.
-
-If molecular data is sent to a browser, a sufficiently technical user can potentially access that data.
-
-Therefore, options such as disabling download should be understood as **UI/feature restrictions**, not data-security mechanisms.
-
----
-
-# Extensibility
-
-The initial implementation should use 3Dmol.js.
-
-However, the architecture should leave room for additional molecular rendering engines in the future.
-
-Conceptually:
-
-```text
-PDBViewerPHP
-     │
-     └── Renderer
-          ├── 3Dmol.js
-          ├── Future renderer
-          └── Future renderer
+```
+https://3Dmol.csb.pitt.edu/build/3Dmol-min.js
+https://3Dmol.csb.pitt.edu/build/3Dmol-min.css
 ```
 
-The project should not implement multiple engines simply for the sake of abstraction.
+### Changing the Version
 
-The first objective is to make the **3Dmol.js implementation excellent**.
+```php
+use PDBViewerPHP\Renderer\ThreeDMolRenderer;
 
----
+$renderer = new ThreeDMolRenderer('2.0.0', 'https://3Dmol.csb.pitt.edu');
+$viewer->setRenderer($renderer);
+```
 
-# Why 3Dmol.js?
+### 3Dmol.js Features Used
 
-3Dmol.js is a strong foundation because it already provides the molecular visualization capabilities that PDBViewerPHP needs.
+- Structure loading (PDB, mmCIF formats)
+- Molecular representations (cartoon, stick, sphere, etc.)
+- Selection and highlighting
+- Camera and zoom control
+- Canvas rendering
+- Color schemes
 
-This means the project can concentrate on the PHP-specific gap:
+See the [3Dmol.js documentation](https://3Dmol.csb.pitt.edu/3Dmol/AlphaFold) for more information.
 
-**configuration + embedding + UI + developer experience**
+## Browser Compatibility
 
-rather than rebuilding:
+PDBViewerPHP works in all modern browsers with WebGL support:
 
-**WebGL + molecular rendering + structure visualization.**
+- Chrome/Chromium 60+
+- Firefox 55+
+- Safari 11+
+- Edge 79+
+- Opera 47+
 
----
+### Known Limitations
 
-# Project Philosophy
+- **Measurement Tools**: Distance/angle measurements are not yet implemented
+- **Electron Density Maps**: Map visualization is not currently supported
+- **Animation Sequences**: Molecular dynamics trajectories are not supported
+- **Advanced Selection**: Complex atom selection syntax may be limited
 
-PDBViewerPHP should follow these principles:
+See the roadmap for planned features.
 
-1. **PHP-first**
-2. **Minimal JavaScript required from the user**
-3. **3Dmol.js does the molecular rendering**
-4. **Server-defined configuration**
-5. **Configurable user controls**
-6. **Simple defaults**
-7. **Advanced configuration when required**
-8. **No unnecessary framework dependencies**
-9. **Security-conscious generated output**
-10. **Remain a reusable library rather than becoming a full application**
+## Testing
 
----
+Run the test suite:
 
-# Future Possibilities
+```bash
+php run_tests.php
+```
 
-Potential future features may include:
+This runs 20+ tests covering:
 
-* Additional rendering engines
-* Advanced residue/atom annotations
-* Measurement tools
-* Structure comparison
-* Predefined viewer profiles
-* Saved camera configurations
-* Annotation overlays
-* Sequence-to-structure interaction
-* Ligand-focused views
-* Binding-site presets
-* Plugin hooks
-* CMS integrations
-* WordPress integration
-* Laravel integration
-* Symfony integration
+- Configuration classes
+- Fluent API
+- HTML/JavaScript generation
+- JSON serialization
+- Control configuration
+- Theme application
 
-These are **future possibilities**, not requirements for the initial version.
+## Roadmap
 
----
+Potential future enhancements:
 
-# Initial Success Criteria
+- [ ] Measurement tools (distance, angles)
+- [ ] Electron density maps
+- [ ] Molecular dynamics visualization
+- [ ] Advanced selection UI
+- [ ] Predefined viewer presets
+- [ ] Additional renderers (NGL, Mol*)
+- [ ] Session persistence
+- [ ] Sequence-structure interaction
+- [ ] Additional themes
+- [ ] Plugin system
 
-The project will be successful if a PHP developer can install the library and create a useful molecular viewer with minimal effort while controlling the viewer primarily from PHP.
+## API Stability
 
-The important demonstration is:
+The current API is **stable** for v1. Public methods may be extended but existing signatures will not break.
 
-> **A PHP developer should not need to understand the internal 3Dmol.js initialization process to create and configure a useful molecular viewer.**
+Configuration classes and enums are stable. New enum values may be added in minor versions.
 
-The first version should therefore prioritize **clean PHP API design, reliable 3Dmol.js integration, configurable controls, and a solid separation between server configuration and client rendering**.
+## Code Quality
+
+PDBViewerPHP follows these standards:
+
+- **PHP 8.1+** with strict types
+- **PSR-4** autoloading
+- **Meaningful exceptions** for error cases
+- **Small focused classes** with single responsibilities
+- **Comprehensive PHPDoc** documentation
+- **Fluent interfaces** for usability
+
+## Contributing
+
+Contributions are welcome! Please:
+
+1. Follow the existing code style
+2. Add tests for new features
+3. Update documentation
+4. Keep the API clean and simple
+5. Maintain backward compatibility
+
+## License
+
+MIT License - See LICENSE file for details
+
+## Support
+
+For issues, questions, or suggestions:
+
+- GitHub Issues: [PDBViewerPHP Issues](https://github.com/saurabhgayali/PDBViewerPHP-Class/issues)
+- Documentation: See the examples/ and demo/ directories
+
+## Credits
+
+- **3Dmol.js**: Molecular visualization engine by David Goodsell, RCSB PDB
+- **3Dmol.js CDN**: Hosted by the Pittsburgh Supercomputing Center
+
+## See Also
+
+- [3Dmol.js Documentation](https://3Dmol.csb.pitt.edu/3Dmol/AlphaFold)
+- [RCSB PDB](https://www.rcsb.org)
+- [mmCIF Format](https://mmcif.wwpdb.org/)
