@@ -62,93 +62,101 @@ if (!$showDownload) {
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #e5e5e5;
             min-height: 100vh;
-            padding: 20px;
+            padding: 10px;
         }
         
         .container {
             max-width: 1200px;
             margin: 0 auto;
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             overflow: hidden;
         }
         
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #6b6b6b;
             color: white;
-            padding: 30px;
+            padding: 15px 20px;
             text-align: center;
         }
         
         .header h1 {
-            font-size: 2em;
-            margin-bottom: 10px;
+            font-size: 1.6em;
+            margin-bottom: 5px;
         }
         
         .header p {
             opacity: 0.9;
-            font-size: 1.1em;
+            font-size: 0.95em;
         }
         
         .content {
             display: grid;
-            grid-template-columns: 250px 1fr;
-            min-height: 600px;
+            grid-template-columns: 220px 1fr;
+            min-height: 400px;
         }
         
         .sidebar {
-            background: #f8f9fa;
-            border-right: 1px solid #e0e0e0;
-            padding: 20px;
+            background: #f5f5f5;
+            border-right: 1px solid #d0d0d0;
+            padding: 15px;
             overflow-y: auto;
         }
         
+        .sidebar h3 {
+            font-size: 0.95em;
+            margin-bottom: 12px;
+            color: #333;
+        }
+        
         .main {
-            padding: 20px;
+            padding: 15px;
+            position: relative;
+            overflow: hidden;
         }
         
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 12px;
         }
         
         label {
             display: block;
             font-weight: 600;
-            margin-bottom: 8px;
-            color: #333;
-            font-size: 0.9em;
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 0.85em;
         }
         
         input[type="text"],
         select {
             width: 100%;
-            padding: 8px 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 0.9em;
+            padding: 6px 8px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 0.85em;
             font-family: inherit;
         }
         
         input[type="text"]:focus,
         select:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+            border-color: #999;
+            box-shadow: 0 0 0 2px rgba(128, 128, 128, 0.1);
         }
         
         .checkbox-group {
             display: flex;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
         
         input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            margin-right: 10px;
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
             cursor: pointer;
         }
         
@@ -156,45 +164,50 @@ if (!$showDownload) {
             margin: 0;
             cursor: pointer;
             user-select: none;
+            font-weight: 400;
+            font-size: 0.85em;
         }
         
         button {
             width: 100%;
-            padding: 10px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 8px;
+            background: #8a8a8a;
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 3px;
             font-weight: 600;
             cursor: pointer;
-            font-size: 0.95em;
-            transition: transform 0.2s, box-shadow 0.2s;
+            font-size: 0.85em;
+            transition: background-color 0.2s;
         }
         
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            background: #737373;
         }
         
         button:active {
-            transform: translateY(0);
+            background: #6b6b6b;
         }
         
         .viewer-wrapper {
             background: white;
-            border-radius: 4px;
+            border-radius: 3px;
+            border: 1px solid #d0d0d0;
+            position: relative;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         
         .info-box {
-            background: #e3f2fd;
-            border-left: 4px solid #2196f3;
-            padding: 12px;
-            margin-bottom: 20px;
+            background: #f0f0f0;
+            border-left: 4px solid #888;
+            padding: 10px;
+            margin-top: 12px;
             border-radius: 2px;
-            font-size: 0.9em;
-            color: #1565c0;
+            font-size: 0.8em;
+            color: #555;
         }
         
         @media (max-width: 768px) {
@@ -204,7 +217,7 @@ if (!$showDownload) {
             
             .sidebar {
                 border-right: none;
-                border-bottom: 1px solid #e0e0e0;
+                border-bottom: 1px solid #d0d0d0;
             }
         }
     </style>
@@ -265,7 +278,7 @@ if (!$showDownload) {
                     <button type="submit">Update Viewer</button>
                 </form>
                 
-                <div class="info-box" style="margin-top: 20px;">
+                <div class="info-box">
                     <strong>Tip:</strong> All configuration is done server-side using PHP!
                 </div>
             </div>
@@ -275,9 +288,9 @@ if (!$showDownload) {
                     <?php echo $viewer->render(); ?>
                 </div>
                 
-                <div style="margin-top: 20px; padding: 15px; background: #fafafa; border-radius: 4px;">
-                    <p><strong>Current Configuration:</strong></p>
-                    <code style="font-size: 0.85em; color: #666;">
+                <div style="margin-top: 12px; padding: 10px; background: #f5f5f5; border-radius: 3px; border: 1px solid #d0d0d0;">
+                    <p style="font-size: 0.85em; font-weight: 600; margin-bottom: 5px;"><strong>Current Configuration:</strong></p>
+                    <code style="font-size: 0.75em; color: #666;">
                         PDB: <strong><?php echo htmlspecialchars($pdbId); ?></strong> | 
                         Representation: <strong><?php echo htmlspecialchars($representation); ?></strong> | 
                         Color Scheme: <strong><?php echo htmlspecialchars($colorScheme); ?></strong> | 
