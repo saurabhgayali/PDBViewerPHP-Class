@@ -56,8 +56,8 @@ class ThreeDMolRenderer implements RendererInterface
         };
 
         $html = <<<HTML
-<div id="{$viewerId}" class="pdbviewer-container {$themeClass}" style="width: {$width}px; height: {$height}px; position: relative; border: 1px solid #ccc;">
-    <div id="{$viewerId}-viewer" style="width: 100%; height: 100%;"></div>
+<div id="{$viewerId}" class="pdbviewer-container {$themeClass}" style="width: {$width}px; height: {$height}px; position: relative; border: 1px solid #d0d0d0; overflow: hidden; display: flex;">
+    <div id="{$viewerId}-viewer" style="width: 100%; height: 100%; position: relative;"></div>
     <div id="{$viewerId}-controls" class="pdbviewer-controls" style="position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; z-index: 100;">
         <!-- Controls will be populated by JavaScript -->
     </div>
@@ -304,8 +304,10 @@ function setupControls(viewer, viewerId, controlConfig) {
 function createButton(label, onClick) {
     const btn = document.createElement('button');
     btn.textContent = label;
-    btn.style.cssText = 'padding: 8px 12px; background: #f0f0f0; border: 1px solid #ccc; cursor: pointer; border-radius: 3px; font-family: inherit; font-size: 12px;';
+    btn.style.cssText = 'padding: 6px 10px; background: #888; border: 1px solid #666; color: white; cursor: pointer; border-radius: 2px; font-family: inherit; font-size: 11px; transition: background-color 0.2s;';
     btn.addEventListener('click', onClick);
+    btn.addEventListener('mouseenter', () => { btn.style.background = '#737373'; });
+    btn.addEventListener('mouseleave', () => { btn.style.background = '#888'; });
     return btn;
 }
 JS;
