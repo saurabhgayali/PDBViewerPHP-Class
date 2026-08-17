@@ -44,9 +44,9 @@ class ThreeDMolRenderer implements RendererInterface
 
     public function renderHtml(array $config): string
     {
-        $viewerId = $config['viewerId'] ?? 'pdbviewer';
-        $width = $config['appearance']['width'] ?? 600;
-        $height = $config['appearance']['height'] ?? 600;
+        $viewerId = htmlspecialchars($config['viewerId'] ?? 'pdbviewer', ENT_QUOTES, 'UTF-8');
+        $width = (int)($config['appearance']['width'] ?? 600);
+        $height = (int)($config['appearance']['height'] ?? 600);
         $theme = $config['appearance']['theme'] ?? 'light';
 
         $themeClass = match($theme) {
@@ -69,7 +69,7 @@ HTML;
 
     public function renderJavaScript(array $config): string
     {
-        $viewerId = $config['viewerId'] ?? 'pdbviewer';
+        $viewerId = htmlspecialchars($config['viewerId'] ?? 'pdbviewer', ENT_QUOTES, 'UTF-8');
         $configJson = json_encode($config, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
 
         if ($configJson === false) {
@@ -82,21 +82,29 @@ HTML;
     const viewerId = '{$viewerId}';
     const viewerElement = document.getElementById(viewerId + '-viewer');
     
-    if (!window.GLViewer) {
+    if (!window.\$3Dmol) {
         console.error('3Dmol.js library not loaded');
         return;
     }
     
     // Initialize viewer
-    const viewer = $3Dmol.createViewer(viewerElement, {
-        defaultcolors: $3Dmol.elementColors.rasmol
+    const viewer = \$3Dmol.createViewer(viewerElement, {
+        defaultcolors: \$3Dmol.elementColors.rasmol
     });
     
     // Apply appearance settings
     const appearance = config.appearance || {};
     
+    // Handle background color
     if (appearance.backgroundColor) {
-        viewer.setBackgroundColor(appearance.backgroundColor);
+        // Convert hex string (#rrggbb) to hex number (0xrrggbb)
+        let hexColor = appearance.backgroundColor;
+        if (typeof hexColor === 'string' && hexColor.startsWith('#')) {
+            hexColor = '0x' + hexColor.substring(1);
+            viewer.setBackgroundColor(parseInt(hexColor, 16));
+        } else if (typeof hexColor === 'number') {
+            viewer.setBackgroundColor(hexColor);
+        }
     } else if (appearance.backgroundTransparent) {
         viewer.setBackgroundColor(0x000000, 0); // Transparent
     } else {
@@ -109,20 +117,22 @@ HTML;
     // Apply representations
     applyRepresentations(viewer, config.representation);
     
-    // Apply appearance settings
+    // Apply spin animation if configured
     if (appearance.spin) {
         viewer.spin(true);
     }
     
-    if (appearance.antialiasing) {
-        // Note: Antialiasing is typically set during viewer initialization
-    }
-    
-    // Zoom to fit
-    viewer.zoomTo();
-    
-    if (appearance.zoom) {
-        viewer.zoom(appearance.zoom);
+    // Apply zoom level after loading structure
+    if (appearance.zoom && typeof appearance.zoom === 'number') {
+        // Note: zoom is applied after structure loads via viewer.zoomTo()
+        // The zoom value multiplies the default zoom level
+        setTimeout(() => {
+            viewer.zoomTo();
+            viewer.zoom(appearance.zoom);
+            viewer.render();
+        }, 100);
+    } else {
+        viewer.zoomTo();
     }
     
     // Render
@@ -142,21 +152,40 @@ function loadStructure(viewer, structureConfig) {
     const type = structureConfig.sourceType;
     
     if (type === 'pdb_id') {
-        $3Dmol.download('pdb:' + structureConfig.pdbId, viewer);
+        \$3Dmol.download('pdb:' + structureConfig.pdbId, viewer, {}, () => {
+            viewer.zoomTo();
+            viewer.render();
+        });
     } else if (type === 'pdb_url') {
-        $3Dmol.download(structureConfig.pdbUrl, viewer);
+        \$3Dmol.download(structureConfig.pdbUrl, viewer, {}, () => {
+            viewer.zoomTo();
+            viewer.render();
+        });
     } else if (type === 'mmcif_url') {
-        $3Dmol.download(structureConfig.mmCifUrl, viewer);
+        \$3Dmol.download(structureConfig.mmCifUrl, viewer, {}, () => {
+            viewer.zoomTo();
+            viewer.render();
+        });
     } else if (type === 'raw_data') {
-        viewer.addModel(structureConfig.rawData, structureConfig.format || 'pdb');
+        try {
+            viewer.addModel(structureConfig.rawData, structureConfig.format || 'pdb');
+            viewer.zoomTo();
+            viewer.render();
+        } catch (e) {
+            console.error('Failed to load raw structure data:', e);
+        }
     } else if (type === 'local_file') {
         fetch(structureConfig.localFile)
-            .then(response => response.text())
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to fetch structure file');
+                return response.text();
+            })
             .then(data => {
                 viewer.addModel(data, structureConfig.format || 'pdb');
                 viewer.zoomTo();
                 viewer.render();
-            });
+            })
+            .catch(e => console.error('Failed to load structure file:', e));
     }
 }
 
@@ -164,15 +193,16 @@ function applyRepresentations(viewer, repConfig) {
     if (!repConfig) return;
     
     const representations = repConfig.representations || [];
-    const colorScheme = repConfig.colorScheme;
+    if (representations.length === 0) return;
     
-    // Clear default
-    viewer.setStyle({}, {cartoon: {}});
+    // Apply representations with optional color scheme
+    const colorScheme = repConfig.colorScheme;
     
     for (const rep of representations) {
         const style = {};
         style[rep] = {};
         
+        // Apply color scheme if specified
         if (colorScheme) {
             style[rep].colorscheme = colorScheme;
         }
@@ -187,7 +217,7 @@ function setupControls(viewer, viewerId, controlConfig) {
     const controlsDiv = document.getElementById(viewerId + '-controls');
     if (!controlsDiv) return;
     
-    // Reset button
+    // Reset view button
     if (controlConfig.reset) {
         const btn = createButton('Reset', () => {
             viewer.zoomTo();
@@ -196,7 +226,7 @@ function setupControls(viewer, viewerId, controlConfig) {
         controlsDiv.appendChild(btn);
     }
     
-    // Spin button
+    // Toggle spin button
     if (controlConfig.spin) {
         const btn = createButton('Spin', () => {
             const isSpinning = viewer._spin;
@@ -209,11 +239,19 @@ function setupControls(viewer, viewerId, controlConfig) {
     // Screenshot button
     if (controlConfig.screenshot) {
         const btn = createButton('Screenshot', () => {
-            const canvas = viewer._canvas;
-            const link = document.createElement('a');
-            link.href = canvas.toDataURL();
-            link.download = 'structure.png';
-            link.click();
+            try {
+                const canvas = viewer._canvas;
+                if (canvas && canvas.toDataURL) {
+                    const link = document.createElement('a');
+                    link.href = canvas.toDataURL('image/png');
+                    link.download = 'structure.png';
+                    link.click();
+                } else {
+                    console.error('Canvas not available for screenshot');
+                }
+            } catch (e) {
+                console.error('Screenshot failed:', e);
+            }
         });
         controlsDiv.appendChild(btn);
     }
@@ -222,20 +260,51 @@ function setupControls(viewer, viewerId, controlConfig) {
     if (controlConfig.fullscreen) {
         const btn = createButton('Fullscreen', () => {
             const container = document.getElementById(viewerId);
+            if (!container) return;
+            
             if (container.requestFullscreen) {
-                container.requestFullscreen();
+                container.requestFullscreen().catch(err => {
+                    console.error('Fullscreen request failed:', err);
+                });
             } else if (container.webkitRequestFullscreen) {
                 container.webkitRequestFullscreen();
+            } else if (container.mozRequestFullScreen) {
+                container.mozRequestFullScreen();
+            } else if (container.msRequestFullscreen) {
+                container.msRequestFullscreen();
             }
         });
         controlsDiv.appendChild(btn);
     }
+    
+    // Download structure button
+    if (controlConfig.download) {
+        const btn = createButton('Download', () => {
+            try {
+                const canvas = viewer._canvas;
+                if (canvas && canvas.toDataURL) {
+                    const link = document.createElement('a');
+                    link.href = canvas.toDataURL('image/png');
+                    link.download = 'structure.png';
+                    link.click();
+                } else {
+                    console.error('Cannot download - canvas not available');
+                }
+            } catch (e) {
+                console.error('Download failed:', e);
+            }
+        });
+        controlsDiv.appendChild(btn);
+    }
+    
+    // Note: Zoom, Rotate, Pan controls require mouse/touch handling which is built-in to 3Dmol.js
+    // These are handled natively by the viewer and don't require UI buttons
 }
 
 function createButton(label, onClick) {
     const btn = document.createElement('button');
     btn.textContent = label;
-    btn.style.cssText = 'padding: 8px 12px; background: #f0f0f0; border: 1px solid #ccc; cursor: pointer; border-radius: 3px;';
+    btn.style.cssText = 'padding: 8px 12px; background: #f0f0f0; border: 1px solid #ccc; cursor: pointer; border-radius: 3px; font-family: inherit; font-size: 12px;';
     btn.addEventListener('click', onClick);
     return btn;
 }

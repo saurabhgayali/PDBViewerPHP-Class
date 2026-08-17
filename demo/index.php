@@ -5,7 +5,7 @@
  * Run with: php -S localhost:8000
  */
 
-require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 use PDBViewerPHP\PDBViewer;
 use PDBViewerPHP\Configuration\{RepresentationType, ColorScheme, Theme};
