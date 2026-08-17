@@ -155,6 +155,7 @@ class StructureConfiguration
     public function toArray(): array
     {
         return [
+            'sourceType' => $this->getSourceType(),
             'pdbId' => $this->pdbId,
             'pdbUrl' => $this->pdbUrl,
             'mmCifUrl' => $this->mmCifUrl,

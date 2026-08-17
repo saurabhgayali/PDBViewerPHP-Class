@@ -246,10 +246,12 @@ JS;
 
     public function validateConfiguration(array $config): bool
     {
-        // Basic validation
+        // Basic validation - allow configuration even if structure is not set yet
+        // (structure can be loaded dynamically)
         if (isset($config['structure']) && is_array($config['structure'])) {
             $sourceType = $config['structure']['sourceType'] ?? null;
-            if (!in_array($sourceType, ['pdb_id', 'pdb_url', 'mmcif_url', 'raw_data', 'local_file'], true)) {
+            // sourceType can be null if structure not yet configured, which is OK
+            if ($sourceType !== null && !in_array($sourceType, ['pdb_id', 'pdb_url', 'mmcif_url', 'raw_data', 'local_file'], true)) {
                 return false;
             }
         }

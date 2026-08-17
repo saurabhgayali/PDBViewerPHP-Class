@@ -419,7 +419,6 @@ class PDBViewer
     {
         return [
             'viewerId' => $this->viewerId,
-            'structure' => array_filter($this->structure->toArray()),
             'structure' => $this->structure->toArray(),
             'representation' => $this->representation->toArray(),
             'appearance' => $this->appearance->toArray(),
