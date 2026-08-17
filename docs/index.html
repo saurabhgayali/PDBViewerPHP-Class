@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDBViewerPHP - PHP-First Molecular Structure Visualization</title>
+    <meta name="description" content="A PHP-first wrapper for 3Dmol.js to embed configurable molecular structure viewers in PHP applications.">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-icon">🧬</span>
+                <span class="logo-text">PDBViewerPHP</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#hero">Home</a></li>
+                <li><a href="#what">What</a></li>
+                <li><a href="#why">Why</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#demo">Demo</a></li>
+                <li><a href="#architecture">Architecture</a></li>
+                <li><a href="#install">Install</a></li>
+                <li><a href="#repository">Code</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero" class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">PDBViewerPHP</h1>
+            <p class="hero-subtitle">PHP configures it. 3Dmol.js renders it.</p>
+            <p class="hero-description">A PHP-first integration layer for embedding interactive molecular structure viewers in your applications.</p>
+            <div class="hero-buttons">
+                <a href="#what" class="btn btn-primary">Learn More</a>
+                <a href="https://github.com/saurabhgayali/PDBViewerPHP-Class" class="btn btn-secondary" target="_blank">View on GitHub</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- What is PDBViewerPHP -->
+    <section id="what" class="section">
+        <div class="container">
+            <h2>What is PDBViewerPHP?</h2>
+            <p>PDBViewerPHP is a PHP library that simplifies embedding interactive molecular structure viewers in PHP applications. It provides a PHP-side configuration and embedding layer around <a href="https://3dmol.csb.pitt.edu/" target="_blank">3Dmol.js</a>.</p>
+            <p>Instead of manually writing HTML and JavaScript to initialize a molecular viewer, your PHP application can define the viewer configuration and let PDBViewerPHP generate the required client-side code automatically.</p>
+            <div class="highlight-box">
+                <strong>The core idea:</strong> Let PHP developers configure molecular viewers without needing deep JavaScript expertise. The library handles generating the proper 3Dmol.js initialization code.
+            </div>
+        </div>
+    </section>
+
+    <!-- Why PDBViewerPHP -->
+    <section id="why" class="section alternate-bg">
+        <div class="container">
+            <h2>Why PDBViewerPHP?</h2>
+            <div class="two-column">
+                <div class="column">
+                    <h3>Without PDBViewerPHP</h3>
+                    <p>You need to:</p>
+                    <ul>
+                        <li>Write HTML boilerplate</li>
+                        <li>Write JavaScript to initialize 3Dmol.js</li>
+                        <li>Configure molecular representations</li>
+                        <li>Handle viewer interface controls</li>
+                        <li>Manage themes and styling</li>
+                    </ul>
+                </div>
+                <div class="column">
+                    <h3>With PDBViewerPHP</h3>
+                    <p>You can:</p>
+                    <ul>
+                        <li>Configure everything in PHP</li>
+                        <li>Specify structures, representations, and appearance</li>
+                        <li>Let the library generate HTML/JS</li>
+                        <li>Focus on your application logic</li>
+                        <li>Reuse viewer configurations</li>
+                    </ul>
+                </div>
+            </div>
+            <p style="text-align: center; margin-top: 2rem;">
+                <strong>PDBViewerPHP is ideal when:</strong> Your server application determines how a molecular structure should be initially presented, and you want to configure that from PHP rather than JavaScript.
+            </p>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="section">
+        <div class="container">
+            <h2>Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>📊 Multiple Structures</h3>
+                    <p>Support for PDB IDs, URLs, raw PDB data, and mmCIF formats</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🎨 Molecular Representations</h3>
+                    <p>Cartoon, stick, sphere, line, cross, ribbon, backbone, and surface representations</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🎭 Color Control</h3>
+                    <p>Customizable colors, color schemes, and molecular selections</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🌈 Themes</h3>
+                    <p>Built-in themes including light, dark, and minimal interfaces</p>
+                </div>
+                <div class="feature-card">
+                    <h3>⚙️ Viewer Configuration</h3>
+                    <p>Control dimensions, background, initial zoom, orientation, and spin</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🛠️ Interface Controls</h3>
+                    <p>Configurable toolbar with reset, fullscreen, spin, export, and more</p>
+                </div>
+                <div class="feature-card">
+                    <h3>📷 Export & Capture</h3>
+                    <p>Screenshot/image export capabilities for sharing and documentation</p>
+                </div>
+                <div class="feature-card">
+                    <h3>💡 Labels & Annotations</h3>
+                    <p>Add labels and visual annotations to molecular structures</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Use Cases -->
+    <section id="use-cases" class="section alternate-bg">
+        <div class="container">
+            <h2>Use Cases</h2>
+            <div class="use-cases-grid">
+                <div class="use-case">
+                    <h4>🔬 Scientific Websites</h4>
+                    <p>Embed protein visualizations in research articles and publications</p>
+                </div>
+                <div class="use-case">
+                    <h4>📚 Educational Platforms</h4>
+                    <p>Create interactive molecular learning experiences for students</p>
+                </div>
+                <div class="use-case">
+                    <h4>🧪 Protein Databases</h4>
+                    <p>Display structures across your database with consistent configuration</p>
+                </div>
+                <div class="use-case">
+                    <h4>🏥 Bioinformatics Portals</h4>
+                    <p>Integrate visualization into analysis and research workflows</p>
+                </div>
+                <div class="use-case">
+                    <h4>💊 Pharmaceutical Applications</h4>
+                    <p>Visualize drug targets and binding sites for research teams</p>
+                </div>
+                <div class="use-case">
+                    <h4>🧬 Laboratory Information Systems</h4>
+                    <p>Display structural data within your LIS or research tools</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture -->
+    <section id="architecture" class="section">
+        <div class="container">
+            <h2>Architecture</h2>
+            <p>PDBViewerPHP is designed as a configuration and integration layer between your PHP application and 3Dmol.js:</p>
+            
+            <div class="architecture-diagram">
+                <div class="arch-layer">
+                    <div class="arch-icon">💻</div>
+                    <div class="arch-label">PHP Application</div>
+                    <div class="arch-description">Your server-side application</div>
+                </div>
+                <div class="arch-arrow">↓</div>
+                <div class="arch-layer highlight">
+                    <div class="arch-icon">⚙️</div>
+                    <div class="arch-label">PDBViewerPHP</div>
+                    <div class="arch-description">Configuration layer<br>Structure • Representation • Appearance • Theme</div>
+                </div>
+                <div class="arch-arrow">↓</div>
+                <div class="arch-layer">
+                    <div class="arch-icon">📝</div>
+                    <div class="arch-label">Generated HTML/JS</div>
+                    <div class="arch-description">Viewer initialization code</div>
+                </div>
+                <div class="arch-arrow">↓</div>
+                <div class="arch-layer">
+                    <div class="arch-icon">🎨</div>
+                    <div class="arch-label">3Dmol.js</div>
+                    <div class="arch-description">WebGL rendering engine</div>
+                </div>
+                <div class="arch-arrow">↓</div>
+                <div class="arch-layer">
+                    <div class="arch-icon">🌐</div>
+                    <div class="arch-label">Browser / WebGL</div>
+                    <div class="arch-description">Client-side visualization</div>
+                </div>
+            </div>
+
+            <div class="two-column" style="margin-top: 3rem;">
+                <div class="column">
+                    <h3>PHP Layer (Server-Side)</h3>
+                    <p>Handles:</p>
+                    <ul>
+                        <li>Structure selection and data</li>
+                        <li>Molecular representation config</li>
+                        <li>Color and appearance settings</li>
+                        <li>Interface feature availability</li>
+                        <li>Theme selection</li>
+                    </ul>
+                </div>
+                <div class="column">
+                    <h3>Browser Layer (Client-Side)</h3>
+                    <p>3Dmol.js handles:</p>
+                    <ul>
+                        <li>WebGL rendering</li>
+                        <li>Interactive rotation/zoom</li>
+                        <li>Molecular visualization</li>
+                        <li>User interactions</li>
+                        <li>Camera and view controls</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Demo -->
+    <section id="demo" class="section alternate-bg">
+        <div class="container">
+            <h2>Interactive Demonstration</h2>
+            <p>This is a <strong>browser-side demonstration</strong> using 3Dmol.js directly from its CDN. It shows the type of interactive viewer that PDBViewerPHP would generate from PHP configuration.</p>
+            
+            <div class="demo-controls">
+                <select id="demoStructure" class="demo-select">
+                    <option value="1fbb">1FBB - Immunoglobulin (light chain)</option>
+                    <option value="1mb3">1MB3 - Myoglobin</option>
+                    <option value="3pqr">3PQR - Maltose-binding protein</option>
+                    <option value="1a4w">1A4W - Protein A (NMR)</option>
+                </select>
+                
+                <select id="demoStyle" class="demo-select">
+                    <option value="cartoon">Cartoon</option>
+                    <option value="stick">Stick</option>
+                    <option value="sphere">Sphere</option>
+                    <option value="line">Line</option>
+                    <option value="cartoon+surface">Cartoon + Surface</option>
+                </select>
+                
+                <select id="demoColorScheme" class="demo-select">
+                    <option value="spectrum">Spectrum (by chain)</option>
+                    <option value="sstype">Secondary Structure</option>
+                    <option value="bfactor">B-factor</option>
+                    <option value="white">White</option>
+                </select>
+                
+                <select id="demoBackground" class="demo-select">
+                    <option value="white">White Background</option>
+                    <option value="0x000000">Black Background</option>
+                    <option value="0x1a1a2e">Dark Blue Background</option>
+                    <option value="0xf0f0f0">Light Gray Background</option>
+                </select>
+                
+                <button id="demoReset" class="demo-button">Reset View</button>
+            </div>
+
+            <div id="viewer" class="demo-viewer"></div>
+
+            <div class="demo-note">
+                <p><strong>Note:</strong> This is a static HTML/JavaScript demonstration. It does not execute PHP. In a real PDBViewerPHP application, the PHP backend would generate the viewer configuration and initialization code automatically.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Installation -->
+    <section id="install" class="section">
+        <div class="container">
+            <h2>Installation</h2>
+            <p>Install PDBViewerPHP via Composer:</p>
+            
+            <div class="code-block">
+                <code>composer require saurabhgayali/pdbviewerphp</code>
+            </div>
+
+            <p style="margin-top: 1.5rem;">Then in your PHP application:</p>
+
+            <pre class="code-block"><code>use PDBViewerPHP\PDBViewer;
+use PDBViewerPHP\Configuration\Structure;
+use PDBViewerPHP\Configuration\Representation;
+
+// Create a viewer
+$viewer = new PDBViewer();
+
+// Configure structure
+$viewer->setStructure(Structure::fromPdbId('1mb3'));
+
+// Add representations
+$viewer->addRepresentation(
+    new Representation('cartoon', ['color' => 'spectrum'])
+);
+
+// Render to HTML
+echo $viewer->render();</code></pre>
+
+            <p style="margin-top: 1.5rem; text-align: center;">
+                <strong>For detailed documentation and examples:</strong> <a href="https://github.com/saurabhgayali/PDBViewerPHP-Class" target="_blank">Visit the GitHub repository</a>
+            </p>
+        </div>
+    </section>
+
+    <!-- Current Status -->
+    <section id="status" class="section alternate-bg">
+        <div class="container">
+            <h2>Project Status</h2>
+            
+            <div class="status-info">
+                <h3>Current Release: Pre-1.0</h3>
+                <p>PDBViewerPHP is in active development. The API is <strong>not yet stable</strong> and may change before version 1.0.</p>
+                
+                <h3 style="margin-top: 1.5rem;">What This Project Does</h3>
+                <ul>
+                    <li>✅ Provides PHP configuration for molecular viewer initialization</li>
+                    <li>✅ Generates HTML and JavaScript for 3Dmol.js integration</li>
+                    <li>✅ Supports common molecular representations and visualizations</li>
+                    <li>✅ Includes viewer interface and theming</li>
+                </ul>
+
+                <h3 style="margin-top: 1.5rem;">Current Limitations</h3>
+                <ul>
+                    <li>Not intended for molecular dynamics visualization</li>
+                    <li>Does not handle electron-density maps</li>
+                    <li>Not a replacement for PyMOL, ChimeraX, or molecular modeling software</li>
+                    <li>Focuses on structure visualization, not advanced analysis</li>
+                    <li>API subject to change</li>
+                </ul>
+
+                <h3 style="margin-top: 1.5rem;">Roadmap</h3>
+                <p>Possible future directions include:</p>
+                <ul>
+                    <li>Improved viewer controls and interactions</li>
+                    <li>Measurement and selection tools</li>
+                    <li>Structure annotations</li>
+                    <li>Sequence/structure interaction</li>
+                    <li>Additional molecular rendering engines</li>
+                    <li>More viewer themes</li>
+                    <li>Framework/CMS integrations</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Repository -->
+    <section id="repository" class="section">
+        <div class="container">
+            <h2>Get Started</h2>
+            <div class="repo-links">
+                <div class="repo-card">
+                    <h3>📁 Source Code</h3>
+                    <p>View the PHP source, examples, and tests</p>
+                    <a href="https://github.com/saurabhgayali/PDBViewerPHP-Class" target="_blank" class="btn btn-secondary">GitHub Repository</a>
+                </div>
+                <div class="repo-card">
+                    <h3>📦 Composer Package</h3>
+                    <p>Install via Composer package manager</p>
+                    <a href="https://packagist.org/packages/saurabhgayali/pdbviewerphp" target="_blank" class="btn btn-secondary">Packagist</a>
+                </div>
+                <div class="repo-card">
+                    <h3>📚 3Dmol.js</h3>
+                    <p>Learn about the underlying rendering engine</p>
+                    <a href="https://3dmol.csb.pitt.edu/" target="_blank" class="btn btn-secondary">3Dmol.js Docs</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 PDBViewerPHP. Released under the <a href="https://github.com/saurabhgayali/PDBViewerPHP-Class/blob/main/LICENSE" target="_blank">MIT License</a>.</p>
+            <p>PDBViewerPHP integrates <a href="https://3dmol.csb.pitt.edu/" target="_blank">3Dmol.js</a> for molecular visualization.</p>
+        </div>
+    </footer>
+
+    <!-- 3Dmol.js from CDN -->
+    <script src="https://3Dmol.csb.pitt.edu/build/3Dmol-min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
