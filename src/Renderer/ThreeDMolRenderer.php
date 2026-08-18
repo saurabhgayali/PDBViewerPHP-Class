@@ -70,6 +70,10 @@ HTML;
     public function renderJavaScript(array $config): string
     {
         $viewerId = htmlspecialchars($config['viewerId'] ?? 'pdbviewer', ENT_QUOTES, 'UTF-8');
+        
+        // Map PHP colorscheme values to valid 3Dmol.js colorscheme values
+        $config = $this->mapColorSchemeValues($config);
+        
         $configJson = json_encode($config, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
 
         if ($configJson === false) {
@@ -320,6 +324,35 @@ function createButton(label, onClick) {
 JS;
 
         return $js;
+    }
+
+    /**
+     * Map PHP colorscheme values to valid 3Dmol.js colorscheme values
+     */
+    private function mapColorSchemeValues(array $config): array
+    {
+        if (!isset($config['representation']['colorScheme'])) {
+            return $config;
+        }
+
+        $colorScheme = $config['representation']['colorScheme'];
+
+        // Map PHP color scheme values to 3Dmol.js valid values
+        $mapping = [
+            'spectrum' => 'chainbow',      // Rainbow by chain
+            'chain' => 'chainbow',         // Also chain should map to chainbow
+            'atom' => 'atom',              // Valid in 3Dmol.js
+            'residue' => 'residue',        // Valid in 3Dmol.js
+            'hydro' => 'hydrophobicity',   // Map hydro to hydrophobicity
+            'sstype' => 'sstype',          // Valid in 3Dmol.js
+            'bfactor' => 'bfactor',        // Valid in 3Dmol.js
+        ];
+
+        if (isset($mapping[$colorScheme])) {
+            $config['representation']['colorScheme'] = $mapping[$colorScheme];
+        }
+
+        return $config;
     }
 
     public function validateConfiguration(array $config): bool
