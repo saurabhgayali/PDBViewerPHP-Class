@@ -264,6 +264,47 @@ class ViewerTest extends BaseTestCase
         echo "✓ Appearance configuration test passed\n";
     }
 
+    /**
+     * Test container ID handling in JavaScript (regression test)
+     * Verifies that the viewer is initialized with the correct element ID string
+     * and includes error checking for missing container elements
+     */
+    public function testContainerIdHandling(): void
+    {
+        $viewer = new PDBViewer();
+        $viewer->loadPDB('1ABC')->setViewerId('custom-viewer-id');
+
+        $js = $viewer->renderJavaScript();
+
+        // Verify the viewer container ID is used correctly
+        if (strpos($js, "const viewerContainerId = viewerId + '-viewer'") === false) {
+            throw new \Exception('JavaScript should construct viewer container ID');
+        }
+
+        // Verify container element verification is in place
+        if (strpos($js, "document.getElementById(viewerContainerId)") === false) {
+            throw new \Exception('JavaScript should verify container element exists');
+        }
+
+        // Verify element ID string is passed to createViewer (not DOM element)
+        if (strpos($js, "\$3Dmol.createViewer(viewerContainerId,") === false) {
+            throw new \Exception('JavaScript should pass element ID string to createViewer');
+        }
+
+        // Verify error handling for missing container
+        if (strpos($js, "Viewer container element not found") === false) {
+            throw new \Exception('JavaScript should have error handling for missing container');
+        }
+
+        // Verify the HTML contains the correct viewer element ID
+        $html = $viewer->renderHtml();
+        if (strpos($html, "id=\"custom-viewer-id-viewer\"") === false) {
+            throw new \Exception('HTML should contain viewer element with correct ID');
+        }
+
+        echo "✓ Container ID handling regression test passed\n";
+    }
+
     public function runAll(): void
     {
         $this->testViewerCreation();
@@ -277,5 +318,6 @@ class ViewerTest extends BaseTestCase
         $this->testViewerIdCustomization();
         $this->testThemeConfiguration();
         $this->testAppearanceConfiguration();
+        $this->testContainerIdHandling();
     }
 }
