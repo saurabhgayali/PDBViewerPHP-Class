@@ -80,15 +80,22 @@ HTML;
 (function() {
     const config = {$configJson};
     const viewerId = '{$viewerId}';
-    const viewerElement = document.getElementById(viewerId + '-viewer');
+    const viewerContainerId = viewerId + '-viewer';
     
     if (!window.\$3Dmol) {
         console.error('3Dmol.js library not loaded');
         return;
     }
     
-    // Initialize viewer
-    const viewer = \$3Dmol.createViewer(viewerElement, {
+    // Verify container element exists
+    const viewerElement = document.getElementById(viewerContainerId);
+    if (!viewerElement) {
+        console.error('Viewer container element not found: ' + viewerContainerId);
+        return;
+    }
+    
+    // Initialize viewer using element ID string (recommended by 3Dmol.js API)
+    const viewer = \$3Dmol.createViewer(viewerContainerId, {
         defaultcolors: \$3Dmol.elementColors.rasmol
     });
     
