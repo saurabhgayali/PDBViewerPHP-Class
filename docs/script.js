@@ -23,11 +23,26 @@ function initializeViewer() {
         return;
     }
     
-    // Create viewer config
-    const config = { backgroundColor: 'white' };
+    // Ensure the viewer element is properly positioned
+    if (viewerElement.style.position !== 'relative' && viewerElement.style.position !== 'absolute') {
+        viewerElement.style.position = 'relative';
+    }
+    
+    // Create viewer config with proper container setup
+    const config = { 
+        backgroundColor: 'white'
+    };
     
     // Initialize 3Dmol viewer
+    // Pass the DOM element (not the ID string) for better positioning handling
     viewer = $3Dmol.createViewer(viewerElement, config);
+    
+    if (!viewer) {
+        console.error('Failed to create 3Dmol viewer');
+        return;
+    }
+    
+    console.log('3Dmol viewer initialized successfully');
     
     // Load initial structure (1FBB)
     loadStructure('1fbb');
